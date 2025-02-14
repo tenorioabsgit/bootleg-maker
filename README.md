@@ -121,10 +121,5 @@ Se houver erro na separação das faixas, tente ajustar os timestamps no script 
 
 ---
 
-## 👨‍💻 Autor
-
-👤 **José Tenório Abs Junior**  
-📧 [Seu Email]  
-🏛 **IBPAD - Instituto Brasileiro de Pesquisa e Análise de Dados**  
 
 🚀 **Agora você pode baixar, organizar e processar áudios de forma automatizada!** Qualquer dúvida, me avise! 😊
