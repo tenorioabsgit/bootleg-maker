@@ -1,24 +1,22 @@
-# 💰 Monitoramento de Cashback - Web Scraping e Telegram Bot
+# 🎵 Download e Processamento de Áudios do YouTube e Vimeo
 
-Este projeto realiza **web scraping** para monitoramento de cashback em lojas parceiras dos sites **Buscapé, Meliuz e Cuponomia**. Sempre que um **cashback acima de um valor configurado** for encontrado, o sistema envia um **alerta no Telegram**.
+Este projeto utiliza **yt-dlp** e **ffmpeg** para baixar áudios de **YouTube** e **Vimeo**, separá-los em faixas, renomear, combinar arquivos e organizar playlists.
 
 ## 📌 Funcionalidades
 
-✅ **Coleta de cashback de múltiplas plataformas**  
-✅ **Filtragem por lojas de interesse**  
-✅ **Comparação de valores de cashback**  
-✅ **Envio de alertas no Telegram quando um cashback alto for encontrado**  
+✅ **Download de áudio de vídeos e playlists do YouTube e Vimeo**  
+✅ **Divisão do áudio em faixas com base em timestamps**  
+✅ **Renomeação automática e remoção de números das faixas**  
+✅ **Combinação de arquivos de áudio respeitando limite de tamanho**  
+✅ **Organização de faixas baixadas e processamento de playlists**  
 
 ---
 
 ## 🛠 Tecnologias Utilizadas
 
 - **Linguagem:** R  
-- **Pacotes:** `RSelenium`, `rvest`, `tidyverse`, `telegram`  
-- **Fontes de Dados:**  
-  - [Buscapé](https://www.buscape.com.br/cupom-de-desconto/)  
-  - [Meliuz](https://www.meliuz.com.br/desconto-lojas)  
-  - [Cuponomia](https://www.cuponomia.com.br/desconto)  
+- **Ferramentas externas:** `yt-dlp`, `ffmpeg`  
+- **Pacotes R:** `processx`, `glue`, `tidyverse`, `fs`, `magrittr`, `stringr`  
 
 ---
 
@@ -26,89 +24,100 @@ Este projeto realiza **web scraping** para monitoramento de cashback em lojas pa
 
 ```
 📁 /  (Diretório Raiz)
-└── web_scraping_cashbacks.R   # Script principal de monitoramento
+├── V1 - Versao_final.R           # Download e separação de faixas
+├── V2 - Versao_final.R           # Versão aprimorada do script de download
+├── v3_corrige_erro_de_track.R    # Correções no script de divisão de faixas
+├── v7_youtube_vimeo.R            # Suporte para vídeos do YouTube e Vimeo
+├── V8_playlist_youtube.R         # Processamento de playlists
+├── combina_audios.R              # Combinação de arquivos MP3 até 150MB
+├── download_mp3_file.R           # Download de um único MP3
+├── download_split_musics_by_time.R # Download e separação automática por tempo
+├── remove_nemeros_faixas.R       # Remove números dos nomes dos arquivos
+├── renomeia_random.R             # Renomeia faixas aleatoriamente
 ```
 
 ---
 
 ## 🚀 Como Executar
 
-### 1️⃣ **Instalar os pacotes necessários**
+### 1️⃣ **Instalar Dependências**
 
-Se ainda não estiverem instalados, execute no R:
+Certifique-se de que `yt-dlp` e `ffmpeg` estão instalados e acessíveis no sistema:
+
+- **Windows:** Baixe e extraia [yt-dlp](https://github.com/yt-dlp/yt-dlp/releases) e adicione ao PATH.
+- **Linux:** Instale com:
+
+```sh
+sudo apt install yt-dlp ffmpeg
+```
+
+No R, instale os pacotes necessários:
 
 ```r
-install.packages(c("RSelenium", "rvest", "tidyverse", "telegram"))
+install.packages(c("processx", "glue", "tidyverse", "fs", "stringr"))
 ```
 
-### 2️⃣ **Configurar a Lista de Lojas de Interesse**
+### 2️⃣ **Executar o Download de Áudio**
 
-No script `web_scraping_cashbacks.R`, edite a variável `lojas_interesse` para incluir as lojas desejadas:
+Para baixar e processar um vídeo do YouTube:
 
 ```r
-lojas_interesse <- c("Amazon", "Americanas", "Submarino")
+source("V1 - Versao_final.R")
 ```
 
-E defina o valor mínimo de cashback para alertas no Telegram:
+Para playlists:
 
 ```r
-valor_cashback <- 6  # Somente cashback acima de 6% será notificado
+source("V8_playlist_youtube.R")
 ```
 
-### 3️⃣ **Configurar o Bot do Telegram**
+### 3️⃣ **Separar o Áudio em Faixas**
 
-- No script, insira o **Token do Bot do Telegram** na variável `Sys.setenv`:
+Se houver timestamps, rode:
 
 ```r
-Sys.setenv(R_TELEGRAM_BOT_Algoritimus_bot='SEU_TOKEN_AQUI')
+source("download_split_musics_by_time.R")
 ```
 
-- Defina o **Chat ID** para onde os alertas devem ser enviados:
+Se precisar corrigir os cortes:
 
 ```r
-bot$set_default_chat_id(SEU_CHAT_ID_AQUI)
+source("v3_corrige_erro_de_track.R")
 ```
 
-### 4️⃣ **Executar o Script**
+### 4️⃣ **Organizar e Renomear Arquivos**
+
+Para remover números das faixas:
 
 ```r
-source("web_scraping_cashbacks.R")
+source("remove_nemeros_faixas.R")
 ```
 
-Se um **cashback alto** for encontrado, você receberá um alerta no **Telegram** com as melhores ofertas.
+Para renomear aleatoriamente:
 
----
-
-## 📊 Estrutura do Alerta no Telegram
-
-Sempre que um cashback alto for encontrado, você receberá uma mensagem no seguinte formato:
-
+```r
+source("renomeia_random.R")
 ```
-Buscapé | Amazon | 8%
-Meliuz | Submarino | 10%
-Cuponomia | Americanas | 12%
+
+Para combinar arquivos respeitando limite de 150MB:
+
+```r
+source("combina_audios.R")
 ```
 
 ---
 
 ## 🛑 Possíveis Problemas e Soluções
 
-### ⚠️ **Erro ao iniciar o Selenium**
-Se houver erro ao rodar o Selenium, verifique se o **Firefox e Geckodriver** estão instalados e compatíveis com a versão do seu navegador.
+### ⚠️ **Erro ao baixar vídeos do YouTube**  
+Se o download falhar, verifique se o **yt-dlp** está atualizado:
 
-### 🔄 **Cashback não está aparecendo corretamente**
-Pode ser necessário ajustar os seletores CSS usados no web scraping:
-
-```r
-cashback <- page %>% html_elements(".Text_MobileTagXs__SHXq9") %>% html_text2()
+```sh
+yt-dlp -U
 ```
 
-### ⏳ **Demora na execução**
-Se o scraping estiver muito lento, experimente **reduzir o número de páginas analisadas**:
-
-```r
-pagination <- 1  # Reduza o número máximo de páginas para buscar
-```
+### ⏳ **Áudio está sendo cortado incorretamente**  
+Se houver erro na separação das faixas, tente ajustar os timestamps no script antes de rodar novamente.
 
 ---
 
@@ -118,4 +127,4 @@ pagination <- 1  # Reduza o número máximo de páginas para buscar
 📧 [Seu Email]  
 🏛 **IBPAD - Instituto Brasileiro de Pesquisa e Análise de Dados**  
 
-🚀 **Agora você pode monitorar cashback automaticamente e receber alertas no Telegram!** Qualquer dúvida, me avise! 😊
+🚀 **Agora você pode baixar, organizar e processar áudios de forma automatizada!** Qualquer dúvida, me avise! 😊
